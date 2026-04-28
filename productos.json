@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "name": "Mochila Titanium Pro ",
+    "price": 50,
+    "wholesale": 40,
+    "stock": 10,
+    "cat": "Urbano",
+    "img": "img/mochila-titanium-pro-x.jpg",
+    "imgs": ["img/mochila-titanium-pro-x-1.jpg"],
+    "promo": true,
+    "sku": "P001",
+    "desc": "Aqui se añade todos los detalles del producto"
+  },
+  {
+    "id": 2,
+    "name": "Producto 2",
+    "price": 80,
+    "wholesale": 65,
+    "stock": 25,
+    "cat": "UViaje",
+    "img": "img/MALETAS-GABIGOL.JPG",
+    "imgs": [""],
+    "promo": false,
+    "sku": "P002",
+    "desc": "Aqui se añade todos los detalles del producto"
+  },
+  {
+    "id": 3,
+    "name": "Bolso Sport",
+    "price": 80,
+    "wholesale": 65,
+    "stock": 25,
+    "cat": "Bolsos",
+    "img": "img/bolso-port.jpg",
+    "imgs": [""],
+    "promo": false,
+    "sku": "P003",
+    "desc": "Aqui se añade todos los detalles del producto"
+  }
+]

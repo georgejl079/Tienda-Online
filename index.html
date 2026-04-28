@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIENDAS ROSSY | Importadora Mayorista Directa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff65c5; --accent: #ff65c5; --promo: #f43f5e; --success: #10b981;
+            --bg: #f8fafc; --surface: #ffffff; --text: #1e293b; --border: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s; }
+        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* BANNERS */
+        .top-info { background: var(--primary); color: white; padding: 10px; text-align: center; font-size: 0.7rem; font-weight: 800; display: flex; justify-content: center; gap: 20px; }
+        header { background: var(--surface); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
+        .logo { font-weight: 800; font-size: 1.6rem; color: var(--primary); cursor: pointer; }
+        .logo span { color: var(--accent); }
+
+        /* HERO */
+        .hero { width: 100%; height: 350px; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .hero img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; filter: brightness(0.6); }
+        .hero-content { position: relative; z-index: 2; text-align: center; color: white; padding: 20px; }
+
+        /* PROGRESS & FILTERS */
+        .shipping-progress { padding: 15px 5%; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 65px; z-index: 998; }
+        .progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); width: 0%; }
+
+        .filters-area { background: var(--surface); padding: 10px 5%; border-bottom: 1px solid var(--border); }
+        .search-box { width: 100%; max-width: 600px; margin: 0 auto 15px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 45px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg); outline: none; font-weight: 600; }
+        .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent); }
+
+        .cat-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; justify-content: center; }
+        .cat-btn { padding: 8px 18px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; white-space: nowrap; font-weight: 700; font-size: 0.85rem; }
+        .cat-btn.active { background: var(--primary); color: white; }
+
+        /* GRIDS & CARDS */
+        .section-title { padding: 40px 5% 10px; font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 20px 5%; }
+        .card { background: var(--surface); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; position: relative; }
+        .card-img { width: 100%; height: 260px; object-fit: cover; cursor: pointer; }
+        .sku-tag { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.6rem; font-weight: 700; }
+        .badge-promo { position: absolute; top: 15px; left: 15px; background: var(--promo); color: white; padding: 4px 10px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; }
+        .card-body { padding: 20px; }
+
+        .stock-tag { font-size: 0.6rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-left: 8px; vertical-align: middle; }
+        .stock-high { background: #dcfce7; color: #166534; }
+        .stock-low { background: #fee2e2; color: #991b1b; }
+        .stock-none { background: #f1f5f9; color: #475569; }
+
+        .qty-box { display: flex; align-items: center; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; overflow: hidden; }
+        .qty-btn { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; }
+        .qty-btn:hover { background: #e2e8f0; }
+        .qty-val { width: 50px; text-align: center; border: none; background: transparent; font-weight: 800; outline: none; }
+        .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: var(--primary); color: white; }
+        .btn-add:active { transform: scale(0.98); }
+        .btn-disabled { background: #cbd5e1 !important; cursor: not-allowed !important; }
+
+        #productView { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; overflow-y: auto; padding: 40px 5%; }
+        .detail-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; max-width: 1100px; margin: 0 auto; }
+        @media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; } }
+        .thumb-bar { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; }
+        .thumb { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid var(--border); }
+        .thumb.active { border-color: var(--accent); }
+
+        .location-section { background: var(--surface); padding: 60px 5%; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .location-section { grid-template-columns: 1fr; } }
+        .map-container { border-radius: 25px; overflow: hidden; height: 350px; border: 1px solid var(--border); }
+
+        .cart-panel { position: fixed; right: -100%; top: 0; width: 100%; max-width: 400px; height: 100%; background: var(--surface); z-index: 2001; transition: 0.4s; display: flex; flex-direction: column; }
+        .cart-panel.active { right: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; backdrop-filter: blur(4px); }
+
+        footer { background: var(--primary); color: white; padding: 40px 5%; text-align: center; font-size: 0.9rem; }
+
+        /* AJUSTE PARA MÓVIL: 2 PRODUCTOS POR FILA SIN ALTERAR EL RESTO */
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+                padding: 15px 3% !important;
+            }
+            .card-img {
+                height: 170px !important;
+            }
+            .card-body {
+                padding: 12px !important;
+            }
+            .card-body h3 {
+                font-size: 0.85rem !important;
+                line-height: 1.2;
+                margin-bottom: 8px;
+            }
+            .section-title {
+                font-size: 1.3rem !important;
+                padding: 25px 5% 5px !important;
+            }
+            .qty-box {
+                margin-bottom: 10px !important;
+            }
+            .qty-btn {
+                padding: 8px !important;
+            }
+            .btn-add {
+                padding: 12px 5px !important;
+                font-size: 0.8rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-info">
+    <span><i class="fa-solid fa-truck"></i> ENVÍOS A TODA BOLIVIA</span>
+    <span><i class="fa-solid fa-star"></i> IMPORTADORA TIENDAS ROSSY</span>
+</div>
+
+<header>
+    <div class="logo" onclick="closeProduct()">TIENDAS <span>ROSSY</span></div>
+    <div onclick="toggleCart(true)" style="cursor:pointer; position:relative;">
+        <i class="fa-solid fa-cart-shopping" style="font-size: 1.5rem;"></i>
+        <span id="cartCount" style="position:absolute; top:-10px; right:-10px; background:var(--promo); color:white; padding:3px 7px; border-radius:50%; font-size:0.7rem; font-weight:800;">0</span>
+    </div>
+</header>
+
+<div id="catalogContent">
+    <section class="hero">
+        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1600" alt="Banners Importaciones">
+        <div class="hero-content">
+            <h1>IMPORTADORA TIENDAS ROSSY</h1>
+            <p>Directo de fábrica. Calidad garantizada para tu negocio mayorista.</p>
+        </div>
+    </section>
+
+    <div class="shipping-progress">
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800;">
+            <span id="progText">Cargando inventario...</span>
+            <span>Meta: Bs. 2000</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progFill"></div></div>
+    </div>
+
+    <div class="filters-area">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Buscar por nombre o categoría..." onkeyup="filterBySearch()">
+        </div>
+        <nav class="cat-bar" id="catBar"></nav>
+    </div>
+
+    <div id="gridsContainer">
+        <h2 class="section-title"><i class="fa-solid fa-fire" style="color:var(--promo)"></i> Ofertas de Temporada</h2>
+        <div class="grid" id="promoGrid"></div>
+
+        <h2 class="section-title">Catálogo Completo</h2>
+        <div class="grid" id="mainGrid"></div>
+    </div>
+
+    <section class="location-section">
+        <div>
+            <h2 style="font-size:2rem; font-weight:800; margin-bottom:20px;">Nuestras Oficinas</h2>
+            <p style="margin-bottom:15px;"><i class="fa-solid fa-location-dot" style="color:var(--accent)"></i> <b>Santa Cruz:</b> Parque Industrial, Calle 4 Este.</p>
+            <p style="margin-bottom:15px;"><i class="fa-solid fa-location-dot" style="color:var(--accent)"></i> <b>Central Yacuiba:</b> Calle Comercio esq. Sucre.</p>
+            <p style="margin-bottom:15px;"><i class="fa-solid fa-whatsapp" style="color:var(--success)"></i> <b>WhatsApp Ventas:</b> +591 700 00000</p>
+            <p style="margin-bottom:15px;"><i class="fa-solid fa-clock" style="color:var(--accent)"></i> Lunes a Sábado: 08:00 - 19:00</p>
+        </div>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3799.444747209772!2d-63.166113!3d-17.765611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDQ1JzU2LjIiUyA2M8KwMDknNTguMCJX!5e0!3m2!1ses!2sbo!4v1640000000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </section>
+</div>
+
+<div id="productView">
+    <div onclick="closeProduct()" style="cursor:pointer; font-weight:800; margin-bottom:30px; display:inline-block;"><i class="fa-solid fa-arrow-left"></i> VOLVER AL CATÁLOGO</div>
+    <div class="detail-grid" id="detailBody"></div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleCart(false)"></div>
+<div id="cartPanel" class="cart-panel">
+    <div style="padding:25px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-weight:800;">Mi Pedido</h2>
+        <i class="fa-solid fa-x" onclick="toggleCart(false)" style="cursor:pointer; font-size:0.8rem;"></i>
+    </div>
+    <div id="cartItems" style="flex:1; overflow-y:auto; padding:20px;"></div>
+    <div style="padding:25px; background:var(--bg); border-top:1px solid var(--border);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:1.5rem; font-weight:800;">
+            <span>Total:</span>
+            <span id="totalLabel" style="color:var(--accent);">Bs. 0</span>
+        </div>
+        <button class="btn-add" style="background:var(--success);" onclick="sendOrder()">
+            <i class="fa-brands fa-whatsapp"></i> CONFIRMAR POR WHATSAPP
+        </button>
+    </div>
+</div>
+
+<footer><p>TIENDAS ROSSY Importaciones Mayoristas © 2026</p>
+<div style="margin-top:15px; opacity:0.6; font-size:0.7rem;"> <br><span class="agency-name">Creactivo - Diseño Web & Branding</span></div>
+</footer>
+
+<script>
+    
+    let products = [];
+    let cart = JSON.parse(localStorage.getItem('bm_cart')) || [];
+    let currentCat = 'Todos';
+
+  async function loadInventory() {
+    try {
+        const response = await fetch("productos.json");
+        const data = await response.json();
+        
+        products = data.map(item => ({
+            ...item,
+            id: item.id || Math.random(),
+            imgs: item.imgs || [item.img],
+            promo: (item.promo === true || item.promo === "TRUE")
+        }));
+
+        renderCategories();
+        renderGrids();
+        updateUI();
+    } catch (error) {
+        console.error("Error cargando inventario:", error);
+        document.getElementById('progText').innerText = "Error cargando productos.";
+    }
+}
+
+    function renderGrids() {
+        const promoGrid = document.getElementById('promoGrid');
+        const mainGrid = document.getElementById('mainGrid');
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        
+        const cardHtml = (p) => {
+            const hasStock = p.stock > 0;
+            const stockClass = !hasStock ? 'stock-none' : (p.stock <= 5 ? 'stock-low' : 'stock-high');
+            const stockText = !hasStock ? 'AGOTADO' : (p.stock <= 5 ? `¡ÚLTIMAS ${p.stock}!` : `${p.stock} DISP.`);
+
+            return `
+            <div class="card" style="${!hasStock ? 'opacity: 0.7' : ''}">
+                <span class="sku-tag">${p.sku}</span>
+                ${p.promo ? '<div class="badge-promo">OFERTA</div>' : ''}
+                <img src="${p.img}" class="card-img" onclick="openProduct(${p.id})" alt="${p.name}">
+                <div class="card-body">
+                    <h3>${p.name}</h3>
+                    <div style="margin:10px 0; display:flex; flex-direction:column; gap:5px;">
+                        <span style="font-size:1.2rem; font-weight:800; color:var(--text);">Bs. ${p.price}</span>
+                        <span class="stock-tag ${stockClass}">${stockText}</span>
+                    </div>
+                    <div class="qty-box">
+                        <button class="qty-btn" onclick="stepQty(${p.id}, -1, 'grid')" ${!hasStock?'disabled':''}>-</button>
+                        <input type="number" id="qty-grid-${p.id}" value="${hasStock?1:0}" class="qty-val" readonly>
+                        <button class="qty-btn" onclick="stepQty(${p.id}, 1, 'grid')" ${!hasStock?'disabled':''}>+</button>
+                    </div>
+                    <button class="btn-add ${!hasStock?'btn-disabled':''}" 
+                            onclick="addToCart(${p.id}, document.getElementById('qty-grid-${p.id}').value)"
+                            ${!hasStock?'disabled':''}>
+                        ${hasStock ? 'AÑADIR' : 'SIN STOCK'}
+                    </button>
+                </div>
+            </div>`;
+        };
+
+        const filtered = products.filter(p => 
+            (currentCat === 'Todos' || p.cat === currentCat) &&
+            (p.name.toLowerCase().includes(term) || p.cat.toLowerCase().includes(term))
+        );
+
+        promoGrid.innerHTML = filtered.filter(p => p.promo).map(cardHtml).join('');
+        mainGrid.innerHTML = filtered.filter(p => !p.promo).map(cardHtml).join('');
+    }
+
+    function renderCategories() {
+        const cats = ['Todos', ...new Set(products.map(p => p.cat))];
+        document.getElementById('catBar').innerHTML = cats.map(c => 
+            `<button class="cat-btn ${c === currentCat ? 'active' : ''}" onclick="changeCat('${c}')">${c}</button>`
+        ).join('');
+    }
+
+    function changeCat(cat) {
+        currentCat = cat;
+        renderCategories();
+        renderGrids();
+    }
+
+    function filterBySearch() { renderGrids(); }
+
+    function openProduct(id) {
+        const p = products.find(x => x.id == id);
+        const hasStock = p.stock > 0;
+        window.scrollTo(0,0);
+        document.getElementById('catalogContent').style.display = 'none';
+        document.getElementById('productView').style.display = 'block';
+        document.getElementById('detailBody').innerHTML = `
+            <div>
+                <img src="${p.img}" id="detMainImg" style="width:100%; border-radius:20px; aspect-ratio:1; object-fit:contain; border:1px solid var(--border); background:white;">
+                <div class="thumb-bar">${p.imgs.map((img, idx) => `<img src="${img}" class="thumb ${idx===0?'active':''}" onclick="changeImg(this, '${img}')">`).join('')}</div>
+            </div>
+            <div>
+                <small>CÓDIGO: ${p.sku}</small>
+                <h1 style="font-size:2.8rem; margin:10px 0;">${p.name}</h1>
+                <p style="margin-bottom:30px; opacity:0.8; line-height:1.6;">${p.desc}</p>
+                <div style="background:var(--surface); padding:30px; border-radius:20px; border:1px solid var(--border);">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                        <span style="font-size:2.2rem; font-weight:800;">Bs. ${p.price}</span>
+                        <span class="stock-tag ${!hasStock?'stock-none':(p.stock<=5?'stock-low':'stock-high')}">
+                            ${!hasStock?'AGOTADO':(p.stock<=5?`¡ÚLTIMAS ${p.stock}!`:`${p.stock} UNIDADES`)}
+                        </span>
+                    </div>
+                    <div class="qty-box">
+                        <button class="qty-btn" onclick="stepQty(${p.id}, -1, 'det')" ${!hasStock?'disabled':''}>-</button>
+                        <input type="number" id="qty-det" value="${hasStock?1:0}" class="qty-val" readonly>
+                        <button class="qty-btn" onclick="stepQty(${p.id}, 1, 'det')" ${!hasStock?'disabled':''}>+</button>
+                    </div>
+                    <button class="btn-add ${!hasStock?'btn-disabled':''}" style="background:var(--accent);" onclick="addToCart(${p.id}, document.getElementById('qty-det').value)" ${!hasStock?'disabled':''}>
+                        ${hasStock ? 'AGREGAR AL PEDIDO' : 'PRODUCTO AGOTADO'}
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    function addToCart(id, qty) {
+        qty = parseInt(qty);
+        if(qty <= 0) return;
+        const p = products.find(x => x.id == id);
+        const exists = cart.find(x => x.id == id);
+        if(exists) exists.qty += qty; else cart.push({...p, qty: qty});
+        updateUI(); toggleCart(true);
+    }
+
+    function updateUI() {
+        localStorage.setItem('bm_cart', JSON.stringify(cart));
+        const total = cart.reduce((acc, item) => {
+            const price = (!item.promo && item.qty >= 6) ? item.wholesale : item.price;
+            return acc + (price * item.qty);
+        }, 0);
+        
+        document.getElementById('cartItems').innerHTML = cart.map((i, idx) => {
+            const price = (!i.promo && i.qty >= 6) ? i.wholesale : i.price;
+            return `<div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+                <img src="${i.img}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                <div style="flex:1;"><div style="font-weight:800; font-size:0.8rem;">${i.name}</div>
+                <small style="color:${(!i.promo && i.qty >= 6) ? 'var(--success)' : 'var(--accent)'}; font-weight:800;">
+                    ${i.qty} x ${price} Bs. ${(!i.promo && i.qty >= 6) ? '(MAYORISTA)' : ''}
+                </small></div>
+                <i class="fa-solid fa-trash" onclick="removeFromCart(${idx})" style="opacity:0.3; cursor:pointer;"></i>
+            </div>`;
+        }).join('');
+
+        document.getElementById('totalLabel').innerText = 'Bs. ' + total;
+        document.getElementById('cartCount').innerText = cart.reduce((a,b) => a+b.qty, 0);
+        const perc = Math.min((total / 2000) * 100, 100);
+        document.getElementById('progFill').style.width = perc + '%';
+        document.getElementById('progText').innerText = total >= 2000 ? "¡ENVÍO GRATIS ACTIVADO! 🚚" : `Faltan Bs. ${2000-total} para Envío Gratis`;
+    }
+
+    function stepQty(id, val, ctx) {
+        const input = document.getElementById(ctx === 'grid' ? `qty-grid-${id}` : 'qty-det');
+        if(input) {
+            let n = parseInt(input.value) + val;
+            if(n >= 1) input.value = n;
+        }
+    }
+
+    function toggleCart(show) { 
+        document.getElementById('cartPanel').classList.toggle('active', show);
+        document.getElementById('overlay').style.display = show ? 'block' : 'none';
+    }
+
+    function removeFromCart(idx) { cart.splice(idx, 1); updateUI(); }
+    function closeProduct() { document.getElementById('catalogContent').style.display = 'block'; document.getElementById('productView').style.display = 'none'; }
+    function changeImg(el, src) { document.getElementById('detMainImg').src = src; document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+
+   function sendOrder() {
+        if (!cart.length) return;
+        let msg = "*NUEVO PEDIDO - TIENDAS ROSSY*\n\n";
+        cart.forEach(i => {
+            const price = (!i.promo && i.qty >= 6) ? i.wholesale : i.price;
+            const subtotal = price * i.qty;
+            msg += `▫️ *${i.name}*\n`;
+            msg += `   SKU: ${i.sku}\n`;
+            msg += `   Cant: ${i.qty} x Bs. ${price}\n`;
+            msg += `   Subtotal: Bs. ${subtotal}\n\n`;
+        });
+        const totalFinal = document.getElementById('totalLabel').innerText;
+        msg += `*TOTAL A PAGAR: ${totalFinal}*`;
+        const encodedMsg = encodeURIComponent(msg);
+        const whatsappUrl = `https://wa.me/59175179990?text=${encodedMsg}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
+    window.onload = loadInventory;
+</script>
+</body>
+</html>
